@@ -1,0 +1,17 @@
+@import "tailwindcss";
+
+body {
+  margin: 0;
+  font-family: system-ui, 'Segoe UI', Roboto, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+#root {
+  width: 100%;
+}
+
+@media print {
+  header { display: none; }
+  .lg\:w-72, .xl\:w-80 { display: none; }
+  button { display: none; }
+}
