@@ -1,4 +1,4 @@
-import { useCallback } from 'react';
+import { useCallback, Component, type ReactNode } from 'react';
 import { FormPanel } from './components/FormPanel';
 import { ResultTable } from './components/ResultTable';
 import { Graph } from './components/Graph';
@@ -6,6 +6,22 @@ import { Warnings } from './components/Warnings';
 import { useStore } from './store/useStore';
 import { runCalculation } from './calculations/selector';
 import type { CalculationResult } from './types';
+
+class ErrorBoundary extends Component<{ children: ReactNode }, { error: string | null }> {
+  state = { error: null };
+  static getDerivedStateFromError(e: Error) { return { error: e.message }; }
+  render() {
+    if (this.state.error) {
+      return (
+        <div className="bg-red-50 border border-red-300 rounded-lg p-4 text-sm text-red-700">
+          <strong>Ошибка при отображении результата:</strong> {this.state.error}
+          <button className="ml-3 underline" onClick={() => this.setState({ error: null })}>Сбросить</button>
+        </div>
+      );
+    }
+    return this.props.children;
+  }
+}
 
 function exportCSV(result: CalculationResult) {
   const m = result.selectedModel;
@@ -95,11 +111,11 @@ export default function App() {
             )}
 
             {!isCalculating && result && (
-              <>
+              <ErrorBoundary>
                 {result.warnings.length > 0 && <Warnings warnings={result.warnings} />}
                 <ResultTable result={result} onExport={() => exportCSV(result)} />
                 <Graph result={result} />
-              </>
+              </ErrorBoundary>
             )}
           </div>
         </div>

@@ -7,11 +7,12 @@ import {
   Title,
   Tooltip,
   Legend,
+  ScatterController,
 } from 'chart.js';
 import { Line } from 'react-chartjs-2';
 import type { CalculationResult } from '../types';
 
-ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend);
+ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend, ScatterController);
 
 export function Graph({ result }: { result: CalculationResult }) {
   const { aeroPoints, actualWorkingQ, actualWorkingP, fanPressureAtDesign } = result;
