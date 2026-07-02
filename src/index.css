@@ -1,17 +1,96 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,400;0,14..32,500;0,14..32,600;0,14..32,700;0,14..32,800&display=swap');
 @import "tailwindcss";
 
 body {
   margin: 0;
-  font-family: system-ui, 'Segoe UI', Roboto, sans-serif;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
   -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background: #F1F5F9;
 }
 
-#root {
-  width: 100%;
+#root { width: 100%; }
+
+/* Segmented control */
+.seg { display: flex; background: #F1F5F9; border-radius: 10px; padding: 3px; gap: 2px; }
+.seg-btn {
+  flex: 1; padding: 5px 6px; font-size: 11.5px; font-family: inherit;
+  font-weight: 500; border-radius: 7px; border: none; cursor: pointer;
+  color: #94A3B8; background: transparent; transition: all 0.15s ease;
+  white-space: nowrap; text-align: center;
 }
+.seg-btn.active {
+  background: white; color: #0F172A; font-weight: 600;
+  box-shadow: 0 1px 3px rgba(15,23,42,0.12), 0 1px 2px rgba(15,23,42,0.07);
+}
+.seg-btn:hover:not(.active) { color: #475569; }
+
+/* Bento input */
+.bento-input {
+  width: 100%; border: 1.5px solid #E2E8F0; border-radius: 10px;
+  padding: 7px 10px; font-size: 13px; font-family: inherit; font-weight: 500;
+  color: #0F172A; background: #FAFBFC; outline: none; transition: all 0.15s;
+  box-sizing: border-box;
+}
+.bento-input:focus { border-color: #3B82F6; background: white; box-shadow: 0 0 0 3px rgba(59,130,246,0.08); }
+select.bento-input { cursor: pointer; appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2394A3B8' stroke-width='2.5'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat; background-position: right 10px center; padding-right: 28px;
+}
+
+/* Toggle pill */
+.pill-group { display: flex; background: #F1F5F9; border-radius: 8px; padding: 2px; gap: 2px; width: fit-content; }
+.pill-btn {
+  padding: 4px 10px; font-size: 11px; font-weight: 500; font-family: inherit;
+  border-radius: 6px; border: none; cursor: pointer; transition: all 0.12s;
+  color: #94A3B8; background: transparent;
+}
+.pill-btn.active { background: white; color: #0F172A; font-weight: 600; box-shadow: 0 1px 2px rgba(15,23,42,0.1); }
+
+/* Bento card */
+.bento-card {
+  background: white; border-radius: 18px; border: 1px solid #E8EDF3;
+  box-shadow: 0 1px 2px rgba(15,23,42,0.03);
+}
+
+/* Gradient button */
+.calc-btn {
+  width: 100%; padding: 11px; font-size: 13.5px; font-weight: 700; font-family: inherit;
+  border-radius: 12px; border: none; cursor: pointer; color: white; letter-spacing: 0.01em;
+  background: linear-gradient(135deg, #1D4ED8 0%, #2563EB 50%, #3B82F6 100%);
+  box-shadow: 0 4px 12px rgba(37,99,235,0.35), 0 1px 3px rgba(37,99,235,0.2);
+  transition: all 0.15s ease; position: relative; overflow: hidden;
+}
+.calc-btn:hover { transform: translateY(-1px); box-shadow: 0 6px 16px rgba(37,99,235,0.4), 0 2px 4px rgba(37,99,235,0.25); }
+.calc-btn:active { transform: translateY(0); }
+
+/* Stat number */
+.stat-num { font-size: 24px; font-weight: 800; line-height: 1; letter-spacing: -0.02em; }
+.stat-unit { font-size: 11px; font-weight: 500; opacity: 0.7; }
+.stat-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; }
+
+/* Result hero */
+.result-hero {
+  background: linear-gradient(135deg, #1E3A8A 0%, #1D4ED8 50%, #2563EB 100%);
+  border-radius: 18px; padding: 20px 24px; color: white;
+  box-shadow: 0 8px 24px rgba(29,78,216,0.25);
+}
+
+/* Section label in cards */
+.card-section-label {
+  font-size: 9.5px; font-weight: 800; text-transform: uppercase;
+  letter-spacing: 0.1em; color: #94A3B8; margin-bottom: 10px;
+}
+
+/* Options table */
+.opts-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+.opts-table th { text-align: left; padding: 6px 10px; background: #F8FAFC; color: #94A3B8; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; border-radius: 6px; }
+.opts-table td { padding: 8px 10px; border-bottom: 1px solid #F1F5F9; color: #334155; }
+.opts-table tr:last-child td { border-bottom: none; }
+.opts-table tr.unavail td { opacity: 0.35; }
 
 @media print {
-  header { display: none; }
-  .lg\:w-72, .xl\:w-80 { display: none; }
-  button { display: none; }
+  header { display: none !important; }
+  .lg\:w-72, .xl\:w-80 { display: none !important; }
+  button { display: none !important; }
 }

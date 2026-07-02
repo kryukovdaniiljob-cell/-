@@ -1,142 +1,160 @@
+import type { ReactNode } from 'react';
 import type { CalculationResult } from '../types';
 import { round } from '../calculations/utils';
 
-function Row({ label, value, unit }: { label: string; value: string | number; unit?: string }) {
+function StatCard({ label, value, unit }: { label: string; value: string | number; unit?: string }) {
   return (
-    <tr className="border-b border-gray-100 hover:bg-gray-50">
-      <td className="py-1.5 pr-4 text-xs text-gray-600 font-medium whitespace-nowrap">{label}</td>
-      <td className="py-1.5 text-sm font-semibold text-gray-900">
-        {typeof value === 'number' ? String(value) : value}
-        {unit && <span className="ml-1 text-xs text-gray-500 font-normal">{unit}</span>}
-      </td>
-    </tr>
+    <div className="bento-card p-4 flex flex-col justify-between">
+      <p className="stat-label" style={{ color: '#94A3B8' }}>{label}</p>
+      <div className="mt-2">
+        <span className="stat-num">{value}</span>
+        {unit && <span className="stat-unit ml-1">{unit}</span>}
+      </div>
+    </div>
   );
 }
 
-function SectionTitle({ title }: { title: string }) {
+function DataRow({ label, value, unit }: { label: string; value: string | number; unit?: string }) {
   return (
-    <tr>
-      <td colSpan={2} className="pt-3 pb-1">
-        <span className="text-xs font-bold text-blue-700 uppercase tracking-wide">{title}</span>
-      </td>
-    </tr>
+    <div className="flex justify-between items-baseline py-1.5 border-b border-slate-50 last:border-0">
+      <span style={{ fontSize: 12, color: '#64748B' }}>{label}</span>
+      <span style={{ fontSize: 13, fontWeight: 600, color: '#0F172A' }}>
+        {value}{unit && <span style={{ fontSize: 11, fontWeight: 400, color: '#94A3B8', marginLeft: 3 }}>{unit}</span>}
+      </span>
+    </div>
+  );
+}
+
+function SectionCard({ title, children, className = '' }: { title: string; children: ReactNode; className?: string }) {
+  return (
+    <div className={`bento-card p-4 ${className}`}>
+      <p className="card-section-label">{title}</p>
+      {children}
+    </div>
   );
 }
 
 export function ResultTable({ result, onExport }: { result: CalculationResult; onExport: () => void }) {
   const { selectedModel: m, recup, heater } = result;
-
   const dim = (v: number | null) => v != null ? `${v}` : '—';
 
   return (
-    <div className="bg-white rounded-lg shadow p-4">
-      <div className="flex justify-between items-center mb-3">
-        <div>
-          <h2 className="text-base font-bold text-gray-800">Техническая спецификация</h2>
-          <p className="text-xs text-gray-500 mt-0.5">Расчёт №{result.calcNumber}</p>
-        </div>
-        <div className="flex gap-2">
-          <button
-            onClick={onExport}
-            className="px-3 py-1.5 text-xs bg-green-600 hover:bg-green-700 text-white rounded transition-colors"
-          >
-            Экспорт CSV
-          </button>
-          <button
-            onClick={() => window.print()}
-            className="px-3 py-1.5 text-xs bg-gray-600 hover:bg-gray-700 text-white rounded transition-colors"
-          >
-            Печать
-          </button>
+    <div className="flex flex-col gap-3">
+
+      {/* Hero */}
+      <div className="result-hero">
+        <div className="flex items-start justify-between gap-4">
+          <div>
+            <p style={{ fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'rgba(255,255,255,0.5)', marginBottom: 6 }}>
+              Подобранная установка · Расчёт №{result.calcNumber}
+            </p>
+            <h2 style={{ fontSize: 22, fontWeight: 800, letterSpacing: '-0.02em', color: 'white', lineHeight: 1.15, margin: 0 }}>
+              {result.selectedSeries}
+            </h2>
+            <p style={{ fontSize: 14, fontWeight: 500, color: 'rgba(255,255,255,0.7)', marginTop: 4 }}>
+              {m.name}
+            </p>
+            <p style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)', marginTop: 10 }}>
+              Фильтр: {m.filterSupply}{m.filterExhaust !== '-' ? ` / ${m.filterExhaust}` : ''}
+              {m.supplyVoltage !== '-' && ` · ${m.supplyVoltage}`}
+            </p>
+          </div>
+          <div className="flex gap-2 shrink-0">
+            <button onClick={onExport}
+              style={{ padding: '7px 14px', background: 'rgba(255,255,255,0.15)', border: '1px solid rgba(255,255,255,0.2)', borderRadius: 10, color: 'white', fontSize: 12, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}>
+              CSV
+            </button>
+            <button onClick={() => window.print()}
+              style={{ padding: '7px 14px', background: 'rgba(255,255,255,0.15)', border: '1px solid rgba(255,255,255,0.2)', borderRadius: 10, color: 'white', fontSize: 12, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}>
+              Печать
+            </button>
+          </div>
         </div>
       </div>
 
-      {/* Model name */}
-      <div className="bg-blue-50 border border-blue-200 rounded p-3 mb-3">
-        <p className="text-xs text-blue-600 font-medium mb-0.5">Подобранная установка</p>
-        <p className="text-base font-bold text-blue-900">{result.selectedSeries} — {m.name}</p>
+      {/* Key stats */}
+      <div className="grid grid-cols-3 gap-3">
+        <StatCard label="Расход (факт)" value={result.actualWorkingQ} unit="м³/ч" />
+        <StatCard label="Давление (факт)" value={result.actualWorkingP} unit="Па" />
+        <StatCard label="Полная мощность" value={round(m.totalPower, 2)} unit="кВт" />
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {/* Left column */}
-        <table className="text-sm w-full">
-          <tbody>
-            <SectionTitle title="Основные характеристики" />
-            <Row label="Серия" value={result.selectedSeries} />
-            <Row label="Модель" value={m.name} />
-            <Row label="Фильтр приток" value={m.filterSupply} />
-            <Row label="Фильтр вытяжка" value={m.filterExhaust} />
-            <Row label="Расход (факт)" value={`${result.actualWorkingQ}`} unit="м³/ч" />
-            <Row label="Давление (факт)" value={`${result.actualWorkingP}`} unit="Па" />
-            <Row label="Давление вент. при расч. Q" value={`${result.fanPressureAtDesign}`} unit="Па" />
-            <Row label="Макс. давление" value={m.maxPressure} unit="Па" />
-            <Row label="Макс. расход" value={m.maxFlow} unit="м³/ч" />
-            <Row label="Напряжение" value={m.supplyVoltage} />
-            <Row label="Потр. мощность (без нагр.)" value={round(m.fanPower, 2)} unit="кВт" />
-            <Row label="Полная мощность" value={round(m.totalPower, 2)} unit="кВт" />
-            <Row label="Рабочий ток" value={round(m.totalCurrent, 1)} unit="А" />
+      {/* Recuperator + Heater */}
+      <div className="grid grid-cols-2 gap-3">
+        <SectionCard title="Рекуператор">
+          <DataRow label="КПД (температура)" value={round(recup.efficiency * 100, 1)} unit="%" />
+          {recup.efficiencyH > 0 && <DataRow label="КПД (влажность)" value={round(recup.efficiencyH * 100, 1)} unit="%" />}
+          <DataRow label="Темп. после рекуп." value={round(recup.supplyTempAfter, 1)} unit="°C" />
+          <DataRow label="Влажн. после рекуп." value={round(recup.supplyHumidityAfter, 0)} unit="%" />
+          <DataRow label="Теплота рекуп." value={round(Math.abs(recup.heatRecovered), 2)} unit="кВт" />
+        </SectionCard>
 
-            <SectionTitle title="Вентилятор" />
-            <Row label="Напряжение вент." value={m.fanVoltage} />
-            <Row label="Ток вент." value={round(m.fanCurrent, 2)} unit="А" />
-            <Row label="Мощность вент." value={round(m.fanPower, 2)} unit="кВт" />
-            <Row label="Частота вращения" value={m.fanRpm > 0 ? m.fanRpm : '—'} unit={m.fanRpm > 0 ? "об/мин" : ""} />
+        <SectionCard title="Нагреватель">
+          <DataRow label="Тип" value={m.heaterVoltage !== '-' ? 'Электрический' : 'Нет'} />
+          <DataRow label="Напряжение" value={m.heaterVoltage} />
+          <DataRow label="Мощность номинальная" value={round(m.heaterPower, 2)} unit="кВт" />
+          <DataRow label="Мощность требуемая" value={round(heater.requiredPower, 2)} unit="кВт" />
+          <DataRow label="Достижимая темп." value={round(heater.achievableTemp, 1)} unit="°C" />
+        </SectionCard>
+      </div>
 
-            <SectionTitle title="Нагреватель" />
-            <Row label="Тип" value={m.heaterVoltage !== '-' ? 'Электрический' : 'Нет'} />
-            <Row label="Напряжение нагрев." value={m.heaterVoltage} />
-            <Row label="Мощность ном." value={round(m.heaterPower, 2)} unit="кВт" />
-            <Row label="Мощность треб." value={round(heater.requiredPower, 2)} unit="кВт" />
-            <Row label="Достиж. температура" value={round(heater.achievableTemp, 1)} unit="°C" />
-          </tbody>
-        </table>
+      {/* Fan + Dimensions */}
+      <div className="grid grid-cols-2 gap-3">
+        <SectionCard title="Вентилятор">
+          <DataRow label="Давление при расч. Q" value={result.fanPressureAtDesign} unit="Па" />
+          <DataRow label="Макс. давление" value={m.maxPressure} unit="Па" />
+          <DataRow label="Макс. расход" value={m.maxFlow} unit="м³/ч" />
+          <DataRow label="Напряжение" value={m.fanVoltage} />
+          <DataRow label="Ток" value={round(m.fanCurrent, 2)} unit="А" />
+          <DataRow label="Мощность" value={round(m.fanPower, 2)} unit="кВт" />
+          {m.fanRpm > 0 && <DataRow label="Частота вращения" value={m.fanRpm} unit="об/мин" />}
+        </SectionCard>
 
-        {/* Right column */}
-        <table className="text-sm w-full">
-          <tbody>
-            <SectionTitle title="Рекуператор" />
-            <Row label="КПД (темп.)" value={round(recup.efficiency * 100, 1)} unit="%" />
-            {recup.efficiencyH > 0 && <Row label="КПД (влажн.)" value={round(recup.efficiencyH * 100, 1)} unit="%" />}
-            <Row label="Темп. после рекуп." value={round(recup.supplyTempAfter, 1)} unit="°C" />
-            <Row label="Влажность после рекуп." value={round(recup.supplyHumidityAfter, 0)} unit="%" />
-            <Row label="Теплота рекуп." value={round(Math.abs(recup.heatRecovered), 2)} unit="кВт" />
+        <SectionCard title="Габариты и масса">
+          <DataRow label="Ширина W" value={dim(m.dimW)} unit="мм" />
+          <DataRow label="Высота H" value={dim(m.dimH)} unit="мм" />
+          <DataRow label="Длина L" value={dim(m.dimL)} unit="мм" />
+          {m.dimW1 != null && <DataRow label="W1" value={dim(m.dimW1)} unit="мм" />}
+          {m.dimH1 != null && <DataRow label="H1" value={dim(m.dimH1)} unit="мм" />}
+          {m.dimL1 != null && <DataRow label="L1" value={dim(m.dimL1)} unit="мм" />}
+          {m.dimD != null && <DataRow label="Патрубок D" value={dim(m.dimD)} unit="мм" />}
+          <DataRow label="Масса" value={m.weight} unit="кг" />
+        </SectionCard>
+      </div>
 
-            <SectionTitle title="Воздушные параметры" />
-            <Row label="Плотность воздуха" value={result.airDensity} unit="кг/м³" />
-            <Row label="Массовый расход" value={result.airMassFlow} unit="кг/с" />
-
-            <SectionTitle title="Габаритные размеры (мм)" />
-            <Row label="W (ширина)" value={dim(m.dimW)} />
-            <Row label="H (высота)" value={dim(m.dimH)} />
-            <Row label="L (длина)" value={dim(m.dimL)} />
-            <Row label="W1" value={dim(m.dimW1)} />
-            <Row label="H1" value={dim(m.dimH1)} />
-            <Row label="L1" value={dim(m.dimL1)} />
-            <Row label="D (патрубок)" value={dim(m.dimD)} unit={m.dimD ? "мм" : ""} />
-            <Row label="Масса" value={m.weight} unit="кг" />
-          </tbody>
-        </table>
+      {/* Secondary stats */}
+      <div className="grid grid-cols-3 gap-3">
+        <StatCard label="Плотность воздуха" value={result.airDensity} unit="кг/м³" />
+        <StatCard label="Массовый расход" value={result.airMassFlow} unit="кг/с" />
+        <StatCard label="Ток полный" value={round(m.totalCurrent, 1)} unit="А" />
       </div>
 
       {/* Options table */}
-      <div className="mt-4">
-        <h3 className="text-xs font-bold text-blue-700 uppercase tracking-wide mb-2">Опции</h3>
-        <table className="w-full text-sm border-collapse">
+      <div className="bento-card p-4">
+        <p className="card-section-label">Опции комплектации</p>
+        <table className="opts-table">
           <thead>
-            <tr className="bg-gray-100">
-              <th className="text-left py-1.5 px-2 text-xs font-semibold text-gray-600">Опция</th>
-              <th className="text-left py-1.5 px-2 text-xs font-semibold text-gray-600">Тип / Модель</th>
-              <th className="text-center py-1.5 px-2 text-xs font-semibold text-gray-600">Кол-во</th>
+            <tr>
+              <th>Опция</th>
+              <th>Тип / Модель</th>
+              <th style={{ textAlign: 'center' }}>Кол-во</th>
+              <th style={{ textAlign: 'center' }}>Вкл.</th>
             </tr>
           </thead>
           <tbody>
             {result.options.map((opt, i) => (
-              <tr key={i} className={`border-b border-gray-100 ${opt.available ? '' : 'opacity-40'}`}>
-                <td className="py-1 px-2 text-xs">{opt.name}</td>
-                <td className="py-1 px-2 text-xs text-gray-700">
-                  {opt.available ? `${opt.type} / ${opt.model}` : '—'}
+              <tr key={i} className={opt.available ? '' : 'unavail'}>
+                <td style={{ fontWeight: 500 }}>{opt.name}</td>
+                <td style={{ color: '#64748B' }}>{opt.available ? `${opt.type} / ${opt.model}` : '—'}</td>
+                <td style={{ textAlign: 'center', fontWeight: 600 }}>{opt.available ? opt.qty : '—'}</td>
+                <td style={{ textAlign: 'center' }}>
+                  <span style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: 18, height: 18, borderRadius: '50%', background: opt.available ? '#DCFCE7' : '#F1F5F9' }}>
+                    {opt.available
+                      ? <svg width="10" height="10" viewBox="0 0 12 12" fill="none"><path d="M2 6l3 3 5-5" stroke="#16A34A" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                      : <svg width="10" height="10" viewBox="0 0 12 12" fill="none"><path d="M3 3l6 6M9 3l-6 6" stroke="#CBD5E1" strokeWidth="2" strokeLinecap="round"/></svg>
+                    }
+                  </span>
                 </td>
-                <td className="py-1 px-2 text-center text-xs">{opt.available ? opt.qty : '—'}</td>
               </tr>
             ))}
           </tbody>

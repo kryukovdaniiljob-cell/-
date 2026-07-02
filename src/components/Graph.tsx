@@ -17,9 +17,7 @@ ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, T
 export function Graph({ result }: { result: CalculationResult }) {
   const { aeroPoints, actualWorkingQ, actualWorkingP, fanPressureAtDesign } = result;
 
-  // Use every 5th point for cleaner graph
   const points = aeroPoints.filter((_, i) => i % 2 === 0);
-
   const labels = points.map(p => p.q);
 
   const data = {
@@ -74,18 +72,13 @@ export function Graph({ result }: { result: CalculationResult }) {
     plugins: {
       legend: {
         position: 'top' as const,
-        labels: { font: { size: 11 }, boxWidth: 20 },
+        labels: { font: { size: 11, family: 'Inter, system-ui, sans-serif' }, boxWidth: 16, padding: 16 },
       },
-      title: {
-        display: true,
-        text: 'Аэродинамические характеристики',
-        font: { size: 13, weight: 'bold' as const },
-      },
+      title: { display: false },
       tooltip: {
         callbacks: {
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          label: (ctx: any) =>
-            `${ctx.dataset.label}: ${Math.round(ctx.parsed?.y ?? 0)} Па`,
+          label: (ctx: any) => `${ctx.dataset.label}: ${Math.round(ctx.parsed?.y ?? 0)} Па`,
         },
       },
     },
@@ -94,24 +87,31 @@ export function Graph({ result }: { result: CalculationResult }) {
         type: 'linear' as const,
         title: { display: true, text: 'Расход, м³/ч', font: { size: 11 } },
         ticks: { font: { size: 10 } },
+        grid: { color: '#F1F5F9' },
       },
       y: {
         title: { display: true, text: 'Давление, Па', font: { size: 11 } },
         min: 0,
         ticks: { font: { size: 10 } },
+        grid: { color: '#F1F5F9' },
       },
     },
   };
 
   return (
-    <div className="bg-white rounded-lg shadow p-4">
-      <div style={{ height: '320px' }}>
+    <div className="bento-card p-4">
+      <p className="card-section-label">Аэродинамические характеристики</p>
+      <div style={{ height: 300 }}>
         <Line data={data as Parameters<typeof Line>[0]['data']} options={options} />
       </div>
-      <div className="mt-2 flex gap-4 text-xs text-gray-600">
-        <span className="flex items-center gap-1">
-          <span className="inline-block w-3 h-3 rounded-full bg-green-600"></span>
+      <div style={{ marginTop: 10, display: 'flex', gap: 16, flexWrap: 'wrap' }}>
+        <span style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 11, color: '#64748B' }}>
+          <span style={{ width: 8, height: 8, borderRadius: '50%', background: '#16A34A', display: 'inline-block' }}></span>
           Рабочая точка: {actualWorkingQ} м³/ч / {actualWorkingP} Па
+        </span>
+        <span style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 11, color: '#64748B' }}>
+          <span style={{ width: 8, height: 8, borderRadius: '50%', background: '#EA580C', display: 'inline-block' }}></span>
+          Расчётная точка: {fanPressureAtDesign} Па
         </span>
       </div>
     </div>
